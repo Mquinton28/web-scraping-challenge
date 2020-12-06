@@ -6,8 +6,6 @@ import requests
 from flask import Flask, render_template
 import numpy as np
 
-app = Flask(__name__)
-
 def init_browser():
     executable_path = {'executable_path': '/usr/local/bin/chromedriver'}
     return Browser('chrome', **executable_path, headless=False)
@@ -38,20 +36,30 @@ def scrape():
     # Featured Image Scrape
     url_img = ('https://www.jpl.nasa.gov/spaceimages/')
     browser.visit(url_img)
+
+    
     response = browser.html
     soup_img = BeautifulSoup(response, 'html.parser')
     mars_images = soup_img.find_all('a', class_="fancybox")
-    img_source = []
-    for image in mars_images:
-        mars_image = image['data-fancybox-href']
-        img_source.append(mars_image)
+    img_url = "https://www.jpl.nasa.gov" + mars_image
     
-    mars_info['url_img'] = "https://www.jpl.nasa.gov" + 
+    mars_info['url_img'] = "https://www.jpl.nasa.gov" + mars_images
 
+    featured_img_url = img_url
 
-@app.route("/")
-def home():
-    return render_template('index.html')
+    mars_info['featured_img_url'] = featured_img_url
 
-if __name__ == "__main__":
-    app.run(debug=True)
+# Mars Facts
+    mars_facts_url = 'https://space-facts.com/mars/'
+    browser.visit(mars_facts_url)
+
+    mars_grab = pd.read_html(mars_facts_url)
+    mars_facts = pd.DataFrame(mars_grab[0])
+    mars_facts.columns = ['Mars', 'Facts']
+    mars_table = mars_facts.set_index("Mars")
+    mars_data = mars_table.to_html(classes='mars_data')
+    mars_data = mars_data
+    
+    mars_info['mars_table'] = mars_data.replace('\n', ' ')
+
+    
