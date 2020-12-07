@@ -62,4 +62,24 @@ def scrape():
     
     mars_info['mars_table'] = mars_data.replace('\n', ' ')
 
-    
+    hems_url = 'https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars'
+    browser.visit(hems_url)
+    html = browser.html
+    soup = BeautifulSoup(html, 'html.parser')
+    mars_hems = []
+
+    for i in range (4):
+        images = browser.find_all('h3')
+        images[i].click()
+        html = browser.html
+        soup = BeautifulSoup(html, 'html.parser')
+        mars_img = soup.find('img', class_='wide-image')['src']
+        img_title = soup.find('h2', class_='title').text
+        img_url = 'https://astrogeology.usgs.gov' + mars_img
+        hems_dictionary = {'title':img_title, 'img_url':img_url}
+        mars_hems.append(hems_dictionary)
+        browser.back()
+
+    mars_info['mars_hems'] = mars_hems
+
+    return mars_info
